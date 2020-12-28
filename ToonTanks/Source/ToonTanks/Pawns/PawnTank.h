@@ -23,9 +23,10 @@ private:
 
 	FVector MoveDirection;
 	FQuat RotationDirection;
-
-	float MoveSpeed = 1500.0f;
-	float RotateSpeed = 150.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float MoveSpeed = 800.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float RotateSpeed = 200.0f;
 
 	void CalculateMoveInput(float Value);
 	void CalculateRotateInput(float Value);
