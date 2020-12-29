@@ -41,7 +41,7 @@ void APawnTank::Tick(float DeltaTime)
 		FHitResult TraceHitResult;
 		PlayerControllerRef->GetHitResultUnderCursor(ECC_Visibility, false, TraceHitResult);
 		FVector HitLocation = TraceHitResult.ImpactPoint;
-		
+
 		RotateTurret(HitLocation);
 	}
 
