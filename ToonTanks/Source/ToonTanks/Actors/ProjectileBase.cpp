@@ -44,9 +44,9 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, MyOwner->GetInstigatorController(), this, DamageType);
+		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticle, GetActorLocation(), GetActorRotation(), HitParticleScale);
+		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticleVariantOne, GetActorLocation() + HitParticleVariantOneLocationOffset, GetActorRotation() - HitParticleVariantOneRotation, HitParticleVariantOneScale);
+		Destroy();
 	}
 
-	// Play a bunch of effects here during the polish phase. - TODO
-
-	Destroy();
 }
