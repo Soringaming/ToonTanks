@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Components/AudioComponent.h"
 #include "ProjectileBase.generated.h"
 
 class UProjectileMovementComponent;
@@ -57,6 +58,12 @@ private:
 		FVector HitParticleVariantOneScale = FVector(1, 1, 1);
 	UPROPERTY(EditAnywhere, Category = "Effects")
 		FVector HitParticleVariantOneLocationOffset = FVector(0, 0, 0);
+	UPROPERTY(EditAnywhere, Category = "Effects")
+		USoundBase* HitSound;
+	UPROPERTY(EditAnywhere, Category = "Effects")
+		USoundBase* LaunchSound;
+	UPROPERTY(EditAnywhere, Category = "Effects")
+		UAudioComponent* FlyWhistleSound;
 
 	// FUNCTIONS
 	UFUNCTION()

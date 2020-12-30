@@ -7,6 +7,26 @@
 #include "ToonTanks/PlayerControllers/PlayerControllerBase.h"
 #include "Kismet/GameplayStatics.h"
 
+ATankGameModeBase::ATankGameModeBase()
+{
+
+    PrimaryActorTick.bCanEverTick = true;
+
+    GameMusic = CreateDefaultSubobject<UAudioComponent>(TEXT("Game Music"));
+    RootComponent = GameMusic;
+
+}
+
+void ATankGameModeBase::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    if (GameMusic)
+    {
+        PlayMusic();
+    }
+}
+
 void ATankGameModeBase::BeginPlay()
 {
     Super::BeginPlay();
@@ -44,6 +64,10 @@ void ATankGameModeBase::HandleGameStart()
     PlayerControllerRef = Cast<APlayerControllerBase>(UGameplayStatics::GetPlayerController(this, 0));
 
     GameStart();
+    if (GameMusic)
+    {
+        PlayMusic();
+    }
     if (PlayerControllerRef)
     {
         PlayerControllerRef->SetPlayerEnabledState(false);
@@ -61,7 +85,41 @@ void ATankGameModeBase::HandleGameStart()
 
 void ATankGameModeBase::HandleGameOver(bool PlayerWon)
 {
+    if (PlayerWon)
+    {
+        FadeMusic(FadeMusicSpeed, FadeMusicWin);
+    }
+    else
+    {
+        FadeMusic(FadeMusicSpeed, FadeMusicLoss);
+    }
     GameOver(PlayerWon);
+}
+
+void ATankGameModeBase::PlayMusic()
+{
+    if (GameMusic && !GameMusic->IsPlaying())
+    {
+        GameMusic->Play();
+    }
+}
+
+void ATankGameModeBase::FadeMusic(float FadeSpeed, float FadeTo)
+{
+    if (GameMusic)
+    {
+        GameMusic->FadeOut(FadeSpeed, FadeTo);
+    }
+}
+
+void ATankGameModeBase::SetupGameMusic(float GameVolumeMultiplier) 
+{
+    GameVolumeMultiplier = InitialVolumeMultiplier;
+    if(GameMusic)
+    {
+        GameMusic->SetVolumeMultiplier(GameVolumeMultiplier);
+        GameMusic->SetUISound(true);
+    }
 }
 
 int32 ATankGameModeBase::GetTargetTurretCount()

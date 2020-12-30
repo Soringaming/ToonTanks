@@ -29,12 +29,21 @@ AProjectileBase::AProjectileBase()
 	ProjectileMovement->ProjectileGravityScale = GravityEffect;
 	InitialLifeSpan = LifeTime;
 
+	FlyWhistleSound = CreateDefaultSubobject<UAudioComponent>(TEXT("Flight Whistle"));
+	FlyWhistleSound->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
 void AProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UGameplayStatics::PlaySoundAtLocation(this, LaunchSound, GetActorLocation());
+	if (FlyWhistleSound)
+	{
+		FlyWhistleSound->FadeOut((GetGameTimeSinceCreation() / GetLifeSpan()) * GetGameTimeSinceCreation(), 0);
+	}
 
 }
 
@@ -49,6 +58,10 @@ void AProjectileBase::Tick(float DeltaTime)
 		ProjectileMovement->Velocity = NewVelocity;
 		ProjectileMovement->ComputeMoveDelta(NewVelocity, DeltaTime);
 		ProjectileMovement->UpdateComponentVelocity();
+	}
+	if (!FlyWhistleSound->IsPlaying() && ProjectileMesh && ProjectileMesh->IsVisible())
+	{
+		FlyWhistleSound->Play();
 	}
 }
 
@@ -68,10 +81,12 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, MyOwner->GetInstigatorController(), this, DamageType);
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticle, GetActorLocation(), GetActorRotation(), HitParticleScale);
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticleVariantOne, GetActorLocation() + HitParticleVariantOneLocationOffset, GetActorRotation() - HitParticleVariantOneRotation, HitParticleVariantOneScale);
+		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 
 		GetWorld()->GetTimerManager().SetTimer(ParticleLifeTimeHandler, this, &AProjectileBase::HandleProjectileDestruction, ParticleLifeTime);
 		ProjectileMesh->SetHiddenInGame(true);
 		ProjectileMesh->DestroyComponent();
+		FlyWhistleSound->FadeOut(0.5, 0);
 		ParticleTrail->DeactivateSystem();
 
 	}
