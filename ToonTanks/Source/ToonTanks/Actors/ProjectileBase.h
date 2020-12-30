@@ -25,14 +25,20 @@ private:
 		TSubclassOf<UDamageType> DamageType;
 
 	// VARIABLES
+	// The movement speeds might need to be public to allow the movement componenet to look at these!
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats", meta = (AllowPrivateAccess = "true"))
+		float LifeTime = 3000;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move", meta = (AllowPrivateAccess = "true"))
-		float MovementSpeed = 1300;
+		float InitialProjectileMovementSpeed = 1300;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Move", meta = (AllowPrivateAccess = "true"))
+		float MaxProjectileMovementSpeed = 1300;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true"))
 		float Damage = 50;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true"))
-		float GravityEffect = 1.0f;
+		float GravityEffect = 300.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 		float ParticleLifeTime = 1;
+
 
 	FTimerHandle ParticleLifeTimeHandler;
 
@@ -61,6 +67,9 @@ private:
 public:
 	// Sets default values for this actor's properties
 	AProjectileBase();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	// Called when the game starts or when spawned
