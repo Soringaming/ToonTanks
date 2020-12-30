@@ -4,6 +4,7 @@
 #include "ProjectileBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -12,14 +13,18 @@ AProjectileBase::AProjectileBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
+	ProjectileMovement->InitialSpeed = MovementSpeed;
+	ProjectileMovement->MaxSpeed = MovementSpeed;
+	ProjectileMovement->ProjectileGravityScale = GravityEffect;
+	InitialLifeSpan = 3.0f;
+
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	ProjectileMesh->OnComponentHit.AddDynamic(this, &AProjectileBase::OnHit);
 	RootComponent = ProjectileMesh;
 
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
-	ProjectileMovement->InitialSpeed = MovementSpeed;
-	ProjectileMovement->MaxSpeed = MovementSpeed;
-	InitialLifeSpan = 3.0f;
+	ParticleTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle Trail"));
+	ParticleTrail->SetupAttachment(RootComponent);
 
 }
 
@@ -27,6 +32,7 @@ AProjectileBase::AProjectileBase()
 void AProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
+	ProjectileMovement->UpdateComponentVelocity();
 
 }
 
@@ -46,7 +52,16 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, MyOwner->GetInstigatorController(), this, DamageType);
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticle, GetActorLocation(), GetActorRotation(), HitParticleScale);
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticleVariantOne, GetActorLocation() + HitParticleVariantOneLocationOffset, GetActorRotation() - HitParticleVariantOneRotation, HitParticleVariantOneScale);
-		Destroy();
+
+		GetWorld()->GetTimerManager().SetTimer(ParticleLifeTimeHandler, this, &AProjectileBase::HandleProjectileDestruction, ParticleLifeTime);
+		ProjectileMesh->SetHiddenInGame(true);
+		ParticleTrail->DeactivateSystem();
+
 	}
 
+}
+
+void AProjectileBase::HandleProjectileDestruction()
+{
+	Destroy();
 }
