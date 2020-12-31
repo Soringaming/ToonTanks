@@ -83,6 +83,8 @@ void AProjectileBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticleVariantOne, GetActorLocation() + HitParticleVariantOneLocationOffset, GetActorRotation() - HitParticleVariantOneRotation, HitParticleVariantOneScale);
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 
+		GetWorld()->GetFirstPlayerController()->ClientPlayCameraShake(HitShake);
+
 		GetWorld()->GetTimerManager().SetTimer(ParticleLifeTimeHandler, this, &AProjectileBase::HandleProjectileDestruction, ParticleLifeTime);
 		ProjectileMesh->SetHiddenInGame(true);
 		ProjectileMesh->DestroyComponent();
